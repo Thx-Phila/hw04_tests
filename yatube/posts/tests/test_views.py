@@ -8,7 +8,6 @@ User = get_user_model()
 
 class TaskPagesTests(TestCase):
     def setUp(self):
-        # Создаем авторизованный клиент
         self.user = User.objects.create_user(username='Yasha1')
         self.authorized_client = Client()
         self.authorized_client.force_login(self.user)
@@ -30,7 +29,6 @@ class TaskPagesTests(TestCase):
             data=self.form_data,
             follow=True
         )
-        # Templates
         self.public_index_template = 'posts/index.html'
         self.public_group_page_template = 'posts/group_list.html'
         self.private_create_post_template = 'posts/create_post.html'
@@ -38,10 +36,8 @@ class TaskPagesTests(TestCase):
         self.public_profile = 'posts/profile.html'
         self.public_post = 'posts/post_detail.html'
 
-    # Проверяем используемые шаблоны
     def test_pages_use_correct_template(self):
         """URL-адрес использует соответствующий шаблон."""
-        # Собираем в словарь пары "имя_html_шаблона: name"
         templates_pages_names = {
             self.public_index_template: reverse('posts:index'),
             self.public_profile: reverse('posts:profile',
@@ -56,8 +52,6 @@ class TaskPagesTests(TestCase):
                 reverse('posts:group_list', kwargs={'slug': '7897987'})
             ),
         }
-        # Проверяем, что при обращении к name вызывается
-        # соответствующий HTML-шаблон
         for template, reverse_name in templates_pages_names.items():
             with self.subTest(reverse_name=reverse_name):
                 response = self.authorized_client.get(reverse_name)
@@ -136,11 +130,9 @@ class PaginatorTests(TestCase):
 
     def test_first_page_contains_ten_records(self):
         response = self.authorized_client.get(reverse('posts:index'))
-        # Проверка: количество постов на первой странице равно 10.
         self.assertEqual(len(response.context['page_obj']), 10)
 
     def test_second_page_contains_three_records(self):
-        # Проверка: на второй странице должно быть три поста.
         response = self.authorized_client.get(
             reverse('posts:index') + '?page=2')
         self.assertEqual(len(response.context['page_obj']), 3)
