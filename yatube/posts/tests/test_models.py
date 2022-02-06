@@ -1,78 +1,42 @@
 from django.test import TestCase
-from django.contrib.auth import get_user_model
-
 from posts.models import Post, Group
+from django.contrib.auth import get_user_model
 
 User = get_user_model()
 
-TEST_POST = {
-    'text': 'Тестовый пост'
-}
 
-TEST_GROUP = {
-    'title': 'Тестовая группа',
-    'slug': 'test_slug',
-    'description': 'Тестовое описание'
-}
-
-TEST_AUTHOR = {
-    'username': 'Author'
-}
-
-TEST_COMMENT = {
-    'text': 'Тестовый комментарий'
-}
-
-
-class PostModelTest(TestCase):
+class TestGroupModel(TestCase):
     @classmethod
     def setUpClass(cls):
         super().setUpClass()
-        cls.user = User.objects.create_user(
-            username=TEST_AUTHOR['username']
-        )
-        cls.user_2 = User.objects.create_user(
-            username='SecondUser'
-        )
+        cls.group_title = 'Group_test'
         cls.group = Group.objects.create(
-            title=TEST_GROUP['title'],
-            slug=TEST_GROUP['slug'],
-            description=TEST_GROUP['description']
-        )
-        cls.post = Post.objects.create(
-            author=cls.user,
-            text='Тестовый пост',
-            group=cls.group
+            title=cls.group_title,
+            slug='aaa789',
+            description='Тестовый текст!1!1'
         )
 
-    def test_models_have_correct_object_names(self):
-        post = PostModelTest.post
-        group = PostModelTest.group
-        expected_names = {
-            post: 'Тестовый пост',
-            group: TEST_GROUP['title'],
-        }
-        for model, name in expected_names.items():
-            with self.subTest(model=model):
-                self.assertEqual(
-                    str(model), name,
-                    f'В модели {model} некорректно работает метод __str__.'
-                )
+    def test_object_name_is_title_group(cls):
+        group = Group.objects.all().first()
+        expected_object_name = group.title
+        cls.assertEqual(expected_object_name, str(cls.group_title),
+                        '__str__ работает неверно')
 
-    def test_models_help_text(self):
-        post = PostModelTest.post
-        expected_help_texts = {
-            post: {
-                'text': 'Текст поста',
-                'group': 'Связанная группа',
-            },
-        }
-        for model, help_texts in expected_help_texts.items():
-            with self.subTest(model=model):
-                for field, expected_text in help_texts.items():
-                    with self.subTest(field=field):
-                        self.assertEqual(
-                            model._meta.get_field(field).help_text,
-                            expected_text,
-                            f'В модели {model} некорректные help_text.'
-                        )
+
+class TestPostModel(TestCase):
+    @classmethod
+    def setUpClass(cls):
+        super().setUpClass()
+        user = User.objects.create(username='Yasha1',
+                                   email='wade333@list.ru',
+                                   password='q421162Q')
+        cls.task = Post.objects.create(
+            author=user,
+            text='Тестовый текст',
+        )
+
+    def test_object_text_long(self):
+        task = Post.objects.all().first()
+        expected_object_name = task.text[:15]
+        self.assertEqual(expected_object_name, str(task),
+                         'Не проходит по ограничению поста в 15 символов')

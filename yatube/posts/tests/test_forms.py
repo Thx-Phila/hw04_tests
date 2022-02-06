@@ -20,14 +20,14 @@ class PostFormTest(TestCase):
         cls.form = PostForm()
         cls.user = User.objects.create_user(username='test_user')
         cls.group = Group.objects.create(
-            title='Тестовая группа',
+            title='Test group',
             slug='testgroup',
-            description='Описание группы',
+            description='Description of test group',
         )
         cls.new_group = Group.objects.create(
-            title='Новая тестовая группа',
+            title='New test group',
             slug='newtestgroup',
-            description='Описание новой группы',
+            description='Description of new test group',
         )
         cls.post = Post.objects.create(
             text='Test text',
@@ -42,10 +42,32 @@ class PostFormTest(TestCase):
 
     def setUp(self):
         self.authorized_client = Client()
-        self.guest_client = Client()
         self.authorized_client.force_login(PostFormTest.user)
 
+    def test_create_post(self):
+        """Валидная форма создаёт запись в Post"""
+        posts_count = Post.objects.count()
+        post_data = {
+            'text': 'New test text',
+            'group': PostFormTest.group.id,
+        }
+
+        response = self.authorized_client.post(
+            reverse('posts:post_create'),
+            data=post_data,
+            follow=True,
+        )
+
+        self.assertRedirects(response,
+                             reverse('posts:profile',
+                                     kwargs={"username": "test_user"}))
+        self.assertEqual(Post.objects.count(), posts_count + 1)
+        self.assertEqual(Post.objects.get(pk=2).text, 'New test text')
+        self.assertEqual(Post.objects.get(pk=2).group.id, self.group.id)
+        self.assertEqual(Post.objects.get(pk=2).author.username, "test_user")
+
     def test_edit_post(self):
+        """Валидная форма изменяет запись в Post"""
         post_id = PostFormTest.post.id
         post_data = {
             'text': 'New test text',
@@ -66,35 +88,3 @@ class PostFormTest(TestCase):
         self.assertEqual(Post.objects.get(id=post_id).text, post_data['text'])
         self.assertEqual(Post.objects.get(id=post_id).group.id,
                          post_data['group'])
-
-
-class CommentTest(TestCase):
-    @classmethod
-    def setUpClass(cls):
-        super().setUpClass()
-        cls.author = User.objects.create(username='Тестовый автор')
-        cls.user = User.objects.create(username='Тестовый пользователь')
-        cls.post = Post.objects.create(
-            author=cls.author,
-            text='Тестовый текст',
-        )
-
-    def setUp(self):
-        self.guest_client = Client()
-        self.authorized_client = Client()
-        self.authorized_client.force_login(CommentTest.user)
-        self.form_data = {'post': 'Тестовый комментарий'}
-
-    def unauthorized_user_cant_comment(self):
-        response = self.guest_client.post(reverse(
-            'add_comment', args=[CommentTest.author.username,
-                                 CommentTest.post.id]))
-        self.assertRedirects(response, reverse(
-            'post', args=[CommentTest.author.username,
-                          CommentTest.post.id]))
-
-    def authorized_user_can_comment(self):
-        self.authorized_client.post(reverse(
-            'add_comment',
-            args=[CommentTest.author.username, CommentTest.post.id]),
-            data=self.form_data, follow=True)
