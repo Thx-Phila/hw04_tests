@@ -39,6 +39,3 @@ class PostModelTest(TestCase):
 
         expected_object_name_pub_date = post.pub_date
         self.assertEqual(expected_object_name_pub_date, post.pub_date)
-
-
-
