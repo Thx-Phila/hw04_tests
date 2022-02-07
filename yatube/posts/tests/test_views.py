@@ -4,7 +4,7 @@ from django.urls import reverse
 
 from posts.models import Group, Post
 
-from yatube.settings import POSTS_QUANTITY 
+from yatube.settings import POSTS_QUANTITY
 
 
 User = get_user_model()

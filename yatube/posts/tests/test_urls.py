@@ -72,4 +72,4 @@ class PostURLTests(TestCase):
         for adress, template in template_and_urls.items():
             with self.subTest(adress=adress):
                 response = self.authorized_client.get(adress)
-                self.assertTemplateUsed(response, template)        
+                self.assertTemplateUsed(response, template)
