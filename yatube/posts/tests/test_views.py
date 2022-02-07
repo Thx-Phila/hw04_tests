@@ -108,38 +108,8 @@ class PaginatorViewsTest(TestCase):
         response = self.authorized_client.get(reverse('posts:index'))
         self.assertEqual(len(response.context['page_obj']), POSTS_QUANTITY)
 
-    def test_second_index_contains_three_records(self):
-        response = self.authorized_client.get(
-            reverse('posts:index') + '?page=2'
-        )
-        self.assertEqual(len(
-            response.context['page_obj']), (self.count_posts % POSTS_QUANTITY)
-        )
-
     def test_first_group_contains_ten_records(self):
         response = self.authorized_client.get(
             reverse('posts:group', kwargs={'slug': self.group.slug})
         )
         self.assertEqual(len(response.context['page_obj']), POSTS_QUANTITY)
-
-    def test_second_group_contains_three_records(self):
-        response = self.authorized_client.get(reverse(
-            'posts:group', kwargs={'slug': self.group.slug}
-        ) + '?page=2')
-        self.assertEqual(len(
-            response.context['page_obj']), (self.count_posts % POSTS_QUANTITY)
-        )
-
-    def test_first_profile_contains_ten_records(self):
-        response = self.authorized_client.get(reverse(
-            'posts:profile', kwargs={'username': self.user}
-        ))
-        self.assertEqual(len(response.context['page_obj']), POSTS_QUANTITY)
-
-    def test_second_profile_contains_three_records(self):
-        response = self.authorized_client.get(reverse(
-            'posts:profile', kwargs={'username': self.user}
-        ) + '?page=2')
-        self.assertEqual(len(
-            response.context['page_obj']), (self.count_posts % POSTS_QUANTITY)
-        )
