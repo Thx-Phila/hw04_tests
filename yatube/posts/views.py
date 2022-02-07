@@ -7,6 +7,7 @@ from posts.forms import PostForm
 
 from yatube.settings import POSTS_QUANTITY
 
+
 def paginate(request, queryset):
     paginator = Paginator(queryset, POSTS_QUANTITY)
     page_number = request.GET.get
