@@ -36,7 +36,6 @@ class PostURLTests(TestCase):
         неавторизованного пользователя"""
         response = self.guest_client.get('/create/')
         self.assertEqual(response.status_code, HTTPStatus.FOUND)
-        self.assertTrue(response, '/accounts/login/')
 
     def test_urls_uses_correct_template(self):
         """URL-адрес использует соответствующий шаблон,
@@ -46,8 +45,6 @@ class PostURLTests(TestCase):
             f'/group/{self.group.slug}/': 'posts/group_list.html',
             f'/profile/{self.user.username}/': 'posts/profile.html',
             f'/posts/{self.post.pk}/': 'posts/post_detail.html',
-            '/about/author/': 'about/author.html',
-            '/about/tech/': 'about/tech.html',
         }
         for adress, template in templates_url_names.items():
             with self.subTest(adress=adress):
@@ -66,3 +63,13 @@ class PostURLTests(TestCase):
         response = self.authorized_client.get(reverse(
             'posts:post_edit', kwargs={'post_id': self.post.pk}))
         self.assertTemplateUsed(response, 'posts/create_post.html')
+
+    def test_correct_template_by_owner(self):
+        template_and_urls = {
+            '/create/': 'posts/create_post.html',
+            f'/posts/{self.post.id}/edit/': 'posts/create_post.html'
+        }
+        for adress, template in template_and_urls.items():
+            with self.subTest(adress=adress):
+                response = self.authorized_client.get(adress)
+                self.assertTemplateUsed(response, template)        

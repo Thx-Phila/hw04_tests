@@ -5,8 +5,7 @@ from django.contrib.auth.decorators import login_required
 from .models import Post, Group, User
 from posts.forms import PostForm
 
-POSTS_QUANTITY: int = 10
-
+from yatube.settings import POSTS_QUANTITY
 
 def paginate(request, queryset):
     paginator = Paginator(queryset, POSTS_QUANTITY)
